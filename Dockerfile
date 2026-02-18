@@ -24,7 +24,9 @@ RUN npm ci
 # Copy source code
 COPY src ./src
 
-# Generate Prisma client
+# Generate Prisma client (DATABASE_URL is not needed for generation, only for migrations)
+# Set a dummy DATABASE_URL to satisfy Prisma schema validation during build
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
 RUN npx prisma generate
 
 # Build TypeScript
