@@ -31,16 +31,19 @@ export const userRateLimitMiddleware = rateLimit({
     return `rate_limit:user:${userId}:${role}`;
   },
     store: {
-      async incr(key: string, cb: (err?: Error | null, hits?: number) => void) {
-        try {
-          const client = redisClient.getClient();
-          const hits = await client.incr(key);
-          await client.expire(key, 15 * 60); // 15 minutes
-          cb(null, hits);
-        } catch (error) {
-          logger.error('User rate limit store error', { error, key });
-          cb(error as Error);
-        }
+      incr(key: string, cb: (error: Error | undefined, totalHits: number, resetTime: Date | undefined) => void) {
+        (async () => {
+          try {
+            const client = redisClient.getClient();
+            const hits = await client.incr(key);
+            await client.expire(key, 15 * 60); // 15 minutes
+            const resetTime = new Date(Date.now() + 15 * 60 * 1000);
+            cb(undefined, hits, resetTime);
+          } catch (error) {
+            logger.error('User rate limit store error', { error, key });
+            cb(error as Error, 0, undefined);
+          }
+        })();
       },
     async decrement(key: string) {
       try {
