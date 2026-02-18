@@ -31,7 +31,7 @@ export const userRateLimitMiddleware = rateLimit({
     return `rate_limit:user:${userId}:${role}`;
   },
     store: {
-      incr(key: string, cb: IncrementCallback): void {
+      incr(key: string, cb: (error: Error | undefined, totalHits: number, resetTime: Date | undefined) => void): void {
         (async () => {
           try {
             const client = redisClient.getClient();
@@ -92,7 +92,7 @@ export const roleBasedRateLimit = (adminLimit: number, userLimit: number) => {
       return `rate_limit:role:${role}:${userId}`;
     },
     store: {
-      incr(key: string, cb: IncrementCallback): void {
+      incr(key: string, cb: (error: Error | undefined, totalHits: number, resetTime: Date | undefined) => void): void {
         (async () => {
           try {
             const client = redisClient.getClient();
