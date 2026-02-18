@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id                  String   @id @default(uuid())
+  name                String
+  plan                String   @default("free") // free, pro, enterprise
+  stripeCustomerId    String?
+  stripeSubscriptionId String?
+  subscriptionStatus  String?  @default("active") // active, canceled, past_due
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  users               User[]
+  jobs                Job[]
+
+  @@index([plan])
+  @@index([subscriptionStatus])
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      String   @default("user") // admin, user
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  jobs      Job[]
+
+  @@index([email])
+  @@index([tenantId])
+  @@index([tenantId, role])
+}
+
+model Job {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  url         String
+  score       Int?
+  reason      String?  @db.Text
+  status      String   @default("new") // Values: new, queued, scored, archived, pending_upgrade
+  userId      String
+  tenantId    String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  scoringHistory ScoringHistory[]
+
+  @@unique([tenantId, url]) // Prevent duplicate URLs per tenant
+  @@index([status])
+  @@index([createdAt])
+  @@index([userId])
+  @@index([tenantId])
+  @@index([tenantId, userId])
+  @@index([tenantId, status])
+  @@index([tenantId, userId, status])
+}
+
+model ScoringHistory {
+  id        String   @id @default(uuid())
+  jobId     String
+  score     Int
+  reason    String   @db.Text
+  createdAt DateTime @default(now())
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([createdAt])
+}
