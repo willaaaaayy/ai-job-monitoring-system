@@ -36,8 +36,9 @@ RUN npm run build
 FROM node:20-alpine AS production
 WORKDIR /app
 
-# Install OpenSSL and libc6-compat for Prisma compatibility
-RUN apk add --no-cache openssl openssl-dev libc6-compat
+# Install OpenSSL for Prisma compatibility
+# Note: OpenSSL is usually already included in node:20-alpine, but we ensure it's available
+RUN apk add --no-cache openssl
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
