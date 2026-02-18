@@ -41,7 +41,7 @@ export const userRateLimitMiddleware = rateLimit({
             cb(undefined, hits, resetTime);
           } catch (error) {
             logger.error('User rate limit store error', { error, key });
-            cb(error as Error);
+            cb(error as Error, 0, undefined);
           }
         })();
       },
@@ -101,7 +101,7 @@ export const roleBasedRateLimit = (adminLimit: number, userLimit: number) => {
             const resetTime = new Date(Date.now() + 15 * 60 * 1000);
             cb(undefined, hits, resetTime);
           } catch (error) {
-            cb(error as Error);
+            cb(error as Error, 0, undefined);
           }
         })();
       },
