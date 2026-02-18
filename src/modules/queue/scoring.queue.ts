@@ -1,10 +1,9 @@
 import { Queue, QueueOptions } from 'bullmq';
 import redisClient from '../../infrastructure/redis';
-import config from '../../infrastructure/config';
 import { ScoringJobData } from './queue.types';
 
 const queueOptions: QueueOptions = {
-  connection: redisClient.getClient(),
+  connection: redisClient.getClient() as any, // Type compatibility issue between ioredis versions
   defaultJobOptions: {
     attempts: 3,
     backoff: {

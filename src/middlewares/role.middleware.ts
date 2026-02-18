@@ -7,7 +7,7 @@ export type UserRole = 'admin' | 'user';
  * Middleware to require a specific role
  */
 export const requireRole = (requiredRole: UserRole) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.role) {
       throw new AppError('Role not found in request', 401);
     }

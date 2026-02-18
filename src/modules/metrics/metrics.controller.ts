@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { register, updateQueueMetrics } from '../../infrastructure/metrics';
 
 export class MetricsController {
-  async getMetrics(req: Request, res: Response): Promise<void> {
+  async getMetrics(_req: Request, res: Response): Promise<void> {
     try {
       // Update queue metrics before returning
       await updateQueueMetrics();

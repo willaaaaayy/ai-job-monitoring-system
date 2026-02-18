@@ -13,9 +13,9 @@ export class JWTService {
    * Generate a JWT access token
    */
   generateToken(payload: JWTPayload): string {
-    return jwt.sign(payload as object, config.jwtSecret, {
+    return jwt.sign(payload, config.jwtSecret, {
       expiresIn: config.jwtExpiresIn,
-    });
+    } as jwt.SignOptions);
   }
 
   /**

@@ -1,7 +1,7 @@
 import jobRepository from './job.repository';
 import { CreateJobDto, JobStatus, UpdateJobScoreDto } from './job.types';
 import logger from '../../infrastructure/logger';
-import { StateTransitionError, NotFoundError, AppError } from '../../middlewares/error.middleware';
+import { NotFoundError } from '../../middlewares/error.middleware';
 import jobStateMachine from '../../stateMachine/jobStateMachine';
 import webSocketService from '../websocket/websocket.service';
 import tenantService from '../tenant/tenant.service';

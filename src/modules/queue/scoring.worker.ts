@@ -9,7 +9,7 @@ import { ScoringJobData, ScoringJobResult } from './queue.types';
 import { Job } from 'bullmq';
 
 const workerOptions: WorkerOptions = {
-  connection: redisClient.getClient(),
+  connection: redisClient.getClient() as any, // Type compatibility issue between ioredis versions
   concurrency: config.queueConcurrency,
   limiter: {
     max: 10, // Process max 10 jobs per interval

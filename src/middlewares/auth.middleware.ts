@@ -20,7 +20,7 @@ declare global {
  */
 export const authenticate = (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void => {
   try {

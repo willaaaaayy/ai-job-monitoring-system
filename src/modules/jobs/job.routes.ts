@@ -3,6 +3,7 @@ import jobController from './job.controller';
 import { authenticate } from '../../middlewares/auth.middleware';
 import { cacheMiddleware } from '../../middlewares/cache.middleware';
 import scoringHistoryController from '../scoring-history/scoring-history.controller';
+import { userRateLimitMiddleware } from '../../middlewares/userRateLimit.middleware';
 import rateLimit from 'express-rate-limit';
 
 const router = Router();

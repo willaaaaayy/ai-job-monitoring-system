@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import authService from './auth.service';
 import { registerSchema, loginSchema } from './auth.types';
 import { ValidationError } from '../../middlewares/error.middleware';
-import logger from '../../infrastructure/logger';
 
 export class AuthController {
   async register(req: Request, res: Response, next: NextFunction): Promise<void> {

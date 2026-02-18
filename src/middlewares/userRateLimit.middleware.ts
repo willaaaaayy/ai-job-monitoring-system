@@ -1,7 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import redisClient from '../infrastructure/redis';
-import { AppError } from './error.middleware';
 import logger from '../infrastructure/logger';
 
 /**
@@ -31,18 +30,18 @@ export const userRateLimitMiddleware = rateLimit({
     const role = req.role || 'user';
     return `rate_limit:user:${userId}:${role}`;
   },
-  store: {
-    async incr(key: string, cb: (err?: Error | null, hits?: number) => void) {
-      try {
-        const client = redisClient.getClient();
-        const hits = await client.incr(key);
-        await client.expire(key, 15 * 60); // 15 minutes
-        cb(null, hits);
-      } catch (error) {
-        logger.error('User rate limit store error', { error, key });
-        cb(error as Error);
-      }
-    },
+    store: {
+      async incr(key: string, cb: (err?: Error | null, hits?: number) => void) {
+        try {
+          const client = redisClient.getClient();
+          const hits = await client.incr(key);
+          await client.expire(key, 15 * 60); // 15 minutes
+          cb(null, hits);
+        } catch (error) {
+          logger.error('User rate limit store error', { error, key });
+          cb(error as Error);
+        }
+      },
     async decrement(key: string) {
       try {
         const client = redisClient.getClient();
@@ -90,15 +89,18 @@ export const roleBasedRateLimit = (adminLimit: number, userLimit: number) => {
       return `rate_limit:role:${role}:${userId}`;
     },
     store: {
-      async incr(key: string, cb: (err?: Error | null, hits?: number) => void) {
-        try {
-          const client = redisClient.getClient();
-          const hits = await client.incr(key);
-          await client.expire(key, 15 * 60);
-          cb(null, hits);
-        } catch (error) {
-          cb(error as Error);
-        }
+      incr(key: string, cb: (error: Error | undefined, totalHits: number, resetTime: Date | undefined) => void) {
+        (async () => {
+          try {
+            const client = redisClient.getClient();
+            const hits = await client.incr(key);
+            await client.expire(key, 15 * 60);
+            const resetTime = new Date(Date.now() + 15 * 60 * 1000);
+            cb(undefined, hits, resetTime);
+          } catch (error) {
+            cb(error as Error, 0, undefined);
+          }
+        })();
       },
       async decrement(key: string) {
         try {

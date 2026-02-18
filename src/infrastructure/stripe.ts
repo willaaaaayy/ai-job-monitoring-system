@@ -8,7 +8,7 @@ if (!config.stripeSecretKey) {
 
 export const stripe = config.stripeSecretKey
   ? new Stripe(config.stripeSecretKey, {
-      apiVersion: '2024-12-18.acacia',
+      apiVersion: '2026-01-28.clover',
     })
   : null;
 

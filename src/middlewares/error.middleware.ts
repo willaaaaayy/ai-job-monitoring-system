@@ -38,7 +38,7 @@ export const errorHandler = (
   err: Error | AppError,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void => {
   const correlationId = req.correlationId || 'unknown';
   const userId = req.userId || 'anonymous';

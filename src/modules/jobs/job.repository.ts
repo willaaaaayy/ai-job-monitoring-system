@@ -352,12 +352,10 @@ export class JobRepository {
    * Find job by unique URL for a tenant (for duplicate checking)
    */
   async findByUniqueUrl(tenantId: string, url: string): Promise<Job | null> {
-    return prisma.job.findUnique({
+    return prisma.job.findFirst({
       where: {
-        tenantId_url: {
-          tenantId,
-          url,
-        },
+        tenantId,
+        url,
       },
     });
   }

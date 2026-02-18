@@ -4,7 +4,6 @@ import crypto from 'crypto';
 import redisClient from '../infrastructure/redis';
 import logger from '../infrastructure/logger';
 
-const CSRF_SECRET = process.env.CSRF_SECRET || crypto.randomBytes(32).toString('hex');
 const CSRF_TOKEN_TTL = 3600; // 1 hour
 
 /**
@@ -75,7 +74,7 @@ async function validateCsrfToken(
  */
 export const csrfProtection = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   // Skip CSRF for GET, HEAD, OPTIONS requests

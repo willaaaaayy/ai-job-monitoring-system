@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import jobService from './job.service';
-import logger from '../../infrastructure/logger';
 import { invalidateUserCache } from '../../middlewares/cache.middleware';
 
 export class JobController {

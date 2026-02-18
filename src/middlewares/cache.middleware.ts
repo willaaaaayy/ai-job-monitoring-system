@@ -36,7 +36,8 @@ export const cacheMiddleware = async (
     if (cached) {
       logger.debug('Cache hit', { cacheKey, correlationId: req.correlationId });
       res.setHeader('X-Cache', 'HIT');
-      return res.json(JSON.parse(cached));
+      res.json(JSON.parse(cached));
+      return;
     }
 
     // Store original json function

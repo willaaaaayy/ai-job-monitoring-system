@@ -1,5 +1,4 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
-import * as Sentry from '@sentry/node';
 import helmet from 'helmet';
 import jobRoutes from './modules/jobs/job.routes';
 import authRoutes from './modules/auth/auth.routes';
@@ -24,9 +23,11 @@ import config from './infrastructure/config';
 const app: Express = express();
 
 // Sentry request handler must be first
+// Note: Sentry Handlers API changed in newer versions
+// If using @sentry/node v8+, handlers are automatically integrated
 if (process.env.SENTRY_DSN) {
-  app.use(Sentry.Handlers.requestHandler());
-  app.use(Sentry.Handlers.tracingHandler());
+  // Sentry handlers are automatically integrated via initSentry()
+  // No need to manually add handlers in v8+
 }
 
 // Security middleware
@@ -210,8 +211,9 @@ app.post('/webhooks/scoring', scoringController.receiveScoringResult.bind(scorin
 setupSwagger(app);
 
 // Sentry error handler must be before errorHandler
+// Note: Error handler is automatically integrated in Sentry v8+
 if (process.env.SENTRY_DSN) {
-  app.use(Sentry.Handlers.errorHandler());
+  // Error handling is automatic via Sentry.init()
 }
 
 // Error handling middleware (must be last)

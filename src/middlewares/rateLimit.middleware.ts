@@ -17,15 +17,19 @@ export const rateLimitMiddleware = rateLimit({
     return path === '/health' || path === '/metrics' || path === '/jobs/fetch' || path.endsWith('/jobs/fetch');
   },
   store: {
-    async incr(key: string, cb: (err?: Error | null, hits?: number) => void) {
-      try {
-        const client = redisClient.getClient();
-        const hits = await client.incr(key);
-        await client.expire(key, Math.ceil(config.rateLimitWindowMs / 1000));
-        cb(null, hits);
-      } catch (error) {
-        cb(error as Error);
-      }
+    incr(key: string, cb: (error: Error | undefined, totalHits: number, resetTime: Date | undefined) => void) {
+      (async () => {
+        try {
+          const client = redisClient.getClient();
+          const hits = await client.incr(key);
+          const expireTime = Math.ceil(config.rateLimitWindowMs / 1000);
+          await client.expire(key, expireTime);
+          const resetTime = new Date(Date.now() + config.rateLimitWindowMs);
+          cb(undefined, hits, resetTime);
+        } catch (error) {
+          cb(error as Error, 0, undefined);
+        }
+      })();
     },
     async decrement(key: string) {
       try {

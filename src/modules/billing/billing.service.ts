@@ -80,7 +80,7 @@ export class BillingService {
           }
 
           await tenantRepository.update(tenantId, {
-            plan,
+            plan: plan as 'free' | 'pro' | 'enterprise',
             stripeSubscriptionId: session.subscription as string,
             subscriptionStatus: 'active',
           });
