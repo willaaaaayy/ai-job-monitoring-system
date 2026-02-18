@@ -18,8 +18,30 @@ fi
 
 # Run database migrations
 echo "Running database migrations..."
+
+# Check for failed migrations and resolve them if possible
+FAILED_MIGRATION=$(npx prisma migrate status 2>&1 | grep -oP 'The `\K[^`]+' | head -1 || true)
+
+if [ -n "$FAILED_MIGRATION" ]; then
+  echo "WARNING: Found failed migration: $FAILED_MIGRATION"
+  echo "Attempting to resolve failed migration..."
+  
+  # Try to resolve the failed migration as rolled back
+  npx prisma migrate resolve --rolled-back "$FAILED_MIGRATION" || {
+    echo "WARNING: Could not resolve failed migration automatically"
+    echo "You may need to manually resolve it using:"
+    echo "  npx prisma migrate resolve --rolled-back $FAILED_MIGRATION"
+    echo "  or"
+    echo "  npx prisma migrate resolve --applied $FAILED_MIGRATION"
+    echo ""
+    echo "Continuing with migration deployment..."
+  }
+fi
+
+# Deploy migrations
 npx prisma migrate deploy || {
-  echo "ERROR: Migration failed"
+  echo "ERROR: Migration deployment failed"
+  echo "Check the migration status with: npx prisma migrate status"
   exit 1
 }
 
