@@ -35,7 +35,7 @@ export const userRateLimitMiddleware = rateLimit({
         (async () => {
           try {
             const client = redisClient.getClient();
-            const hits = await client.incr(key);
+            const hits: number = await client.incr(key);
             await client.expire(key, 15 * 60); // 15 minutes
             const resetTime = new Date(Date.now() + 15 * 60 * 1000);
             cb(undefined, hits, resetTime);
@@ -96,7 +96,7 @@ export const roleBasedRateLimit = (adminLimit: number, userLimit: number) => {
         (async () => {
           try {
             const client = redisClient.getClient();
-            const hits = await client.incr(key);
+            const hits: number = await client.incr(key);
             await client.expire(key, 15 * 60);
             const resetTime = new Date(Date.now() + 15 * 60 * 1000);
             cb(undefined, hits, resetTime);
