@@ -48,6 +48,9 @@ COPY --from=build --chown=nodejs:nodejs /app/dist ./dist
 COPY --from=build --chown=nodejs:nodejs /app/prisma ./prisma
 COPY --from=build --chown=nodejs:nodejs /app/package.json ./
 
+# Copy entrypoint script
+COPY --chown=nodejs:nodejs docker-entrypoint.sh ./
+
 # Create logs directory
 RUN mkdir -p logs && chown -R nodejs:nodejs logs
 
@@ -55,5 +58,5 @@ USER nodejs
 
 EXPOSE 3000
 
-# Run migrations and start server
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server.js"]
+# Use entrypoint script to handle migrations and start server
+ENTRYPOINT ["sh", "docker-entrypoint.sh"]
