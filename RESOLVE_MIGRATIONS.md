@@ -30,14 +30,24 @@ npx prisma migrate deploy
 
 ## Решение для Production базы данных (Railway)
 
-### Вариант 1: Через Railway Shell
+### ⭐ Рекомендуемый способ: Через Railway Shell (веб-интерфейс)
 
-1. Откройте Railway Dashboard → ваш проект → Deployments → последний деплоймент → **Shell**
-2. **Важно:** Убедитесь, что вы находитесь в рабочей директории приложения (`/app`)
-3. Выполните команды:
+Railway CLI не всегда работает корректно с путями. Используйте Railway Shell через веб-интерфейс:
+
+1. Откройте [Railway Dashboard](https://railway.app)
+2. Выберите ваш проект
+3. Перейдите в **Deployments** → выберите последний деплоймент
+4. Нажмите на вкладку **Shell** (или кнопку "Open Shell")
+5. В открывшемся терминале выполните:
 
 ```bash
-# Перейти в рабочую директорию (если не там)
+# Проверить текущую директорию
+pwd
+
+# Проверить наличие файлов
+ls -la
+
+# Если вы не в /app, перейти туда (или используйте путь, который показал pwd)
 cd /app
 
 # Разрешить failed migration
@@ -50,34 +60,30 @@ npx prisma migrate status
 npx prisma migrate deploy
 ```
 
-**Если команда не находит schema файл**, используйте явный путь:
+**Если команда не находит schema файл**, проверьте путь:
 
 ```bash
-npx prisma migrate resolve --rolled-back 20240218000000_add_unique_constraint_and_update_status --schema=/app/prisma/schema.prisma
-npx prisma migrate status --schema=/app/prisma/schema.prisma
-npx prisma migrate deploy --schema=/app/prisma/schema.prisma
+# Найти schema файл
+find . -name "schema.prisma"
+
+# Использовать найденный путь
+npx prisma migrate resolve --rolled-back 20240218000000_add_unique_constraint_and_update_status --schema=/путь/к/schema.prisma
 ```
 
-### Вариант 2: Через Railway CLI
+### Альтернатива: Railway CLI (может не работать)
 
-Если у вас установлен Railway CLI, используйте явный путь к schema:
+Railway CLI запускает команды не в контексте контейнера. Если все же хотите попробовать:
 
 ```bash
-# Разрешить failed migration
-railway run npx prisma migrate resolve --rolled-back 20240218000000_add_unique_constraint_and_update_status --schema=./prisma/schema.prisma
-
-# Проверить статус
-railway run npx prisma migrate status --schema=./prisma/schema.prisma
-
-# Применить миграции
-railway run npx prisma migrate deploy --schema=./prisma/schema.prisma
+# Сначала найдите рабочую директорию через Shell
+railway shell
+# Затем выполните команды внутри shell
 ```
 
-**Или с абсолютным путем:**
+**Или попробуйте с переменной окружения:**
 
 ```bash
-railway run sh -c "cd /app && npx prisma migrate resolve --rolled-back 20240218000000_add_unique_constraint_and_update_status"
-railway run sh -c "cd /app && npx prisma migrate deploy"
+railway run bash -c "cd \$(pwd) && npx prisma migrate resolve --rolled-back 20240218000000_add_unique_constraint_and_update_status"
 ```
 
 ## Автоматическое разрешение
