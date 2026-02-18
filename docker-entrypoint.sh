@@ -28,7 +28,8 @@ if echo "$MIGRATION_STATUS" | grep -q "failed migrations"; then
   
   # Extract migration name using sed (BusyBox compatible)
   # Pattern: The `20240218000000_add_unique_constraint_and_update_status` migration
-  FAILED_MIGRATION=$(echo "$MIGRATION_STATUS" | grep "The \`" | sed "s/.*The \`\([^']*\)\`.*/\1/" | head -1 || true)
+  # or: Following migration have failed: 20260217185655_add_multi_tenant_support
+  FAILED_MIGRATION=$(echo "$MIGRATION_STATUS" | grep -E "(The \`|Following migration)" | sed -E "s/.*(The \`|Following migration have failed: )([^'[:space:]]+).*/\2/" | head -1 || true)
   
   if [ -n "$FAILED_MIGRATION" ]; then
     echo "Found failed migration: $FAILED_MIGRATION"
