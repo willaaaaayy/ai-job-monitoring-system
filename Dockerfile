@@ -36,6 +36,9 @@ RUN npm run build
 FROM node:20-alpine AS production
 WORKDIR /app
 
+# Install OpenSSL for Prisma (fixes OpenSSL detection issues)
+RUN apk add --no-cache openssl1.1-compat
+
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
@@ -47,6 +50,10 @@ COPY --from=dependencies --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=build --chown=nodejs:nodejs /app/dist ./dist
 COPY --from=build --chown=nodejs:nodejs /app/prisma ./prisma
 COPY --from=build --chown=nodejs:nodejs /app/package.json ./
+
+# Copy Prisma Client from build stage (critical!)
+COPY --from=build --chown=nodejs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=build --chown=nodejs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 
 # Copy entrypoint script
 COPY --chown=nodejs:nodejs docker-entrypoint.sh ./

@@ -7,10 +7,20 @@ if [ -z "$DATABASE_URL" ]; then
   exit 1
 fi
 
+# Verify Prisma Client is available
+if [ ! -d "node_modules/.prisma" ]; then
+  echo "ERROR: Prisma Client not found. Regenerating..."
+  npx prisma generate || {
+    echo "ERROR: Failed to generate Prisma Client"
+    exit 1
+  }
+fi
+
 # Run database migrations
 echo "Running database migrations..."
 npx prisma migrate deploy || {
-  echo "WARNING: Migration failed, but continuing..."
+  echo "ERROR: Migration failed"
+  exit 1
 }
 
 # Start the server
