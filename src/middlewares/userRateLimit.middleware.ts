@@ -31,17 +31,17 @@ export const userRateLimitMiddleware = rateLimit({
     return `rate_limit:user:${userId}:${role}`;
   },
     store: {
-      incr(key: string, cb: (error: Error | undefined, totalHits: number, resetTime: Date | undefined) => void) {
+      incr(key: string, cb: (err?: Error | null, hits?: number, resetTime?: Date) => void): void {
         (async () => {
           try {
             const client = redisClient.getClient();
             const hits = await client.incr(key);
             await client.expire(key, 15 * 60); // 15 minutes
             const resetTime = new Date(Date.now() + 15 * 60 * 1000);
-            cb(undefined, hits, resetTime);
+            cb(null, hits, resetTime);
           } catch (error) {
             logger.error('User rate limit store error', { error, key });
-            cb(error as Error, 0, undefined);
+            cb(error as Error);
           }
         })();
       },
@@ -92,16 +92,16 @@ export const roleBasedRateLimit = (adminLimit: number, userLimit: number) => {
       return `rate_limit:role:${role}:${userId}`;
     },
     store: {
-      incr(key: string, cb: (error: Error | undefined, totalHits: number, resetTime: Date | undefined) => void) {
+      incr(key: string, cb: (err?: Error | null, hits?: number, resetTime?: Date) => void): void {
         (async () => {
           try {
             const client = redisClient.getClient();
             const hits = await client.incr(key);
             await client.expire(key, 15 * 60);
             const resetTime = new Date(Date.now() + 15 * 60 * 1000);
-            cb(undefined, hits, resetTime);
+            cb(null, hits, resetTime);
           } catch (error) {
-            cb(error as Error, 0, undefined);
+            cb(error as Error);
           }
         })();
       },
